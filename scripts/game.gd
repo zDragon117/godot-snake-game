@@ -12,8 +12,10 @@ func _ready() -> void:
 	queue_redraw()
 	preload_all_fruits()
 	prepare_fruit()
+	snake.fruit = fruit
 	snake.ate.connect(_on_ate_fruit)
 	snake.killed.connect(_on_snake_killed)
+	snake.recreate_fruit.connect(prepare_fruit)
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("quit"):
@@ -45,11 +47,12 @@ func preload_all_fruits():
 				fruits.append(load(dir_path + file_name))
 			file_name = dir.get_next()
 
-func prepare_fruit():
-	current_fruits.erase(fruit.get_node("Sprite2D").texture)
-	if current_fruits.size() == 0:
-		current_fruits = fruits.duplicate()
-	fruit.get_node("Sprite2D").texture = current_fruits.pick_random()
+func prepare_fruit(is_only_position: bool = false):
+	if !is_only_position:
+		current_fruits.erase(fruit.get_node("Sprite2D").texture)
+		if current_fruits.size() == 0:
+			current_fruits = fruits.duplicate()
+		fruit.get_node("Sprite2D").texture = current_fruits.pick_random()
 	
 	# set fruit position to random cell
 	fruit.global_position = Vector2(randi_range(0, get_viewport_rect().size.x / CELL_SIZE - 1) * CELL_SIZE, randi_range(0, get_viewport_rect().size.y / CELL_SIZE - 1) * CELL_SIZE)

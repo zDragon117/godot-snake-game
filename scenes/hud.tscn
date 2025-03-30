@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://c5f1quxc4h2rm"]
+[gd_scene load_steps=6 format=3 uid="uid://c5f1quxc4h2rm"]
 
+[ext_resource type="Texture2D" uid="uid://cs1k0tn3vmdrx" path="res://assets/textures/fruit_dish.png" id="1_5ysmq"]
+[ext_resource type="Script" uid="uid://cmjnj0gme722m" path="res://scripts/hud.gd" id="1_6fi6k"]
 [ext_resource type="FontFile" uid="uid://cnxidehradoc6" path="res://assets/fonts/PoetsenOne-Regular.ttf" id="1_oo0fn"]
-[ext_resource type="Texture2D" uid="uid://e0p68si84q1i" path="res://assets/textures/fruits/apple.png" id="2_5ysmq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oo0fn"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -18,38 +19,87 @@ font_color = Color(0, 0, 0, 1)
 
 [node name="HUD" type="Control"]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6fi6k")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="TotalFruitsContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 76.0
-offset_bottom = 44.0
+offset_left = -75.0
+offset_top = -44.0
 grow_horizontal = 0
 grow_vertical = 0
 size_flags_horizontal = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_oo0fn")
 
-[node name="TextureRect" type="TextureRect" parent="PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="TotalFruitsContainer"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="TotalFruitsContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
-texture = ExtResource("2_5ysmq")
+texture = ExtResource("1_5ysmq")
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="TotalFruitsContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
-theme_override_constants/margin_left = 50
+theme_override_constants/margin_right = 5
 
-[node name="TextScore" type="Label" parent="PanelContainer/MarginContainer"]
+[node name="TotalScore" type="Label" parent="TotalFruitsContainer/HBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "0"
 label_settings = SubResource("LabelSettings_oo0fn")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="FruitDetailContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -35.0
+offset_top = -44.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_oo0fn")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="FruitDetailContainer"]
+layout_mode = 2
+
+[node name="Fruit" type="TextureRect" parent="FruitDetailContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="FruitDetailContainer/HBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_constants/margin_right = 5
+
+[node name="FruitScore" type="Label" parent="FruitDetailContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "0"
+label_settings = SubResource("LabelSettings_oo0fn")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="mouse_entered" from="TotalFruitsContainer" to="." method="_on_total_fruits_container_mouse_entered"]
+[connection signal="mouse_exited" from="TotalFruitsContainer" to="." method="_on_total_fruits_container_mouse_exited"]

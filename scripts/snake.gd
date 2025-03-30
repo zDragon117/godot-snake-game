@@ -7,7 +7,7 @@ signal recreate_fruit
 @export var speed: int = 240
 
 @onready var viewport_size = get_window().size
-@onready var snake_body: CharacterBody2D = $SnakeSegment
+@onready var snake_segment: CharacterBody2D = $SnakeSegment
 # [{"body": CharacterBody2D, "axis": Vector2}]
 @onready var snake_segments: Array[Dictionary] = []
 
@@ -32,18 +32,23 @@ var direction = Vector2.ZERO
 var temp_direction = Vector2.ZERO
 var is_update_snake = false
 var is_new_block = false
+var is_dead = false
 var head_graphic: Texture2D
 var tail_graphic: Texture2D
 var cell_size
+var number_cells_x
+var number_cells_y
 
 func _ready() -> void:
 	cell_size = get_tree().get_root().get_node("Game").CELL_SIZE
+	number_cells_x = get_tree().get_root().get_node("Game").number_cells_x
+	number_cells_y = get_tree().get_root().get_node("Game").number_cells_y
 	
-	snake_segments.append({"body": snake_body, "axis": Vector2(5,10)})
-	snake_segments.append({"body": snake_body.duplicate(DUPLICATE_GROUPS), "axis": Vector2(4,10)})
+	snake_segments.append({"body": snake_segment, "axis": Vector2(4, number_cells_y / 2)})
+	snake_segments.append({"body": snake_segment.duplicate(DUPLICATE_GROUPS), "axis": Vector2(3, number_cells_y / 2)})
 	snake_segments[1]["body"].global_position = Vector2(snake_segments[1]["axis"].x * cell_size, snake_segments[1]["axis"].y * cell_size)
 	add_child(snake_segments[1]["body"])
-	snake_segments.append({"body": snake_body.duplicate(DUPLICATE_GROUPS), "axis": Vector2(3,10)})
+	snake_segments.append({"body": snake_segment.duplicate(DUPLICATE_GROUPS), "axis": Vector2(2, number_cells_y / 2)})
 	snake_segments[2]["body"].global_position = Vector2(snake_segments[2]["axis"].x * cell_size, snake_segments[2]["axis"].y * cell_size)
 	add_child(snake_segments[2]["body"])
 	
@@ -53,12 +58,12 @@ func _physics_process(delta):
 		temp_direction = Vector2.UP
 	elif Input.is_action_just_pressed("move_down") and direction != Vector2.UP:
 		temp_direction = Vector2.DOWN
-	elif Input.is_action_just_pressed("move_left") and direction != Vector2.RIGHT:
+	elif Input.is_action_just_pressed("move_left") and direction != Vector2.RIGHT and direction != Vector2.ZERO:
 		temp_direction = Vector2.LEFT
 	elif Input.is_action_just_pressed("move_right") and direction != Vector2.LEFT:
 		temp_direction = Vector2.RIGHT
 	
-	if !is_update_snake:
+	if !is_update_snake and !is_dead:
 		is_update_snake = true
 		direction = temp_direction
 		move_snake()
@@ -115,7 +120,7 @@ func update_tail_graphics():
 func move_snake():
 	if direction != Vector2.ZERO:
 		if is_new_block == true:
-			var temp = {"body": snake_body.duplicate(DUPLICATE_GROUPS), "axis": Vector2.ZERO}
+			var temp = {"body": snake_segment.duplicate(DUPLICATE_GROUPS), "axis": Vector2.ZERO}
 			temp["axis"] = snake_segments[0]["axis"] + direction
 			temp["axis"] = check_wall(temp["axis"])
 			snake_segments.insert(0, temp)
@@ -141,8 +146,8 @@ func check_wall(snake_axis: Vector2) -> Vector2:
 func check_fruit_collision():
 	if fruit:
 		if fruit.global_position == Vector2(snake_segments[0]["axis"].x * cell_size, snake_segments[0]["axis"].y * cell_size):
-			recreate_fruit.emit(true)
 			ate.emit()
+			recreate_fruit.emit()
 			is_new_block = true
 			speed += 10
 
@@ -156,4 +161,5 @@ func check_fail():
 
 	for segment in snake_segments.slice(1):
 		if segment["axis"].x == snake_segments[0]["axis"].x and segment["axis"].y == snake_segments[0]["axis"].y:
+			is_dead = true
 			killed.emit()

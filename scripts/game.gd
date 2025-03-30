@@ -1,25 +1,24 @@
 extends Node2D
 
-@export var number_cells_x = 32
-@export var number_cells_y = 18
+@export var number_cells_x = 24
+@export var number_cells_y = 14
 
 @onready var viewport_size = get_window().size
 @onready var fruit = $Fruit
 @onready var snake = $SnakeSegments
 @onready var crunch_sound = $SFX/Crunch
+@onready var background_music = $SFX/BackgroundMusic
+@onready var start_game = $SFX/StartGame
 @onready var hud = $UILayer/HUD
 @onready var gos = $UILayer/GameOverScene
-@onready var hud_score = $UILayer/HUD/PanelContainer/MarginContainer/TextScore:
-	set(value):
-		hud_score.text = str(value)
-		
+
 const CELL_SIZE: int = 40
 var fruits: Array[Texture2D] = []
 var current_fruits: Array[Texture2D] = []
 var score = 0:
 	set(value):
 		score = value
-		hud_score = score
+		hud.total_score = score
 var high_score
 
 func _ready() -> void:
@@ -32,7 +31,8 @@ func _ready() -> void:
 		high_score = 0
 		save_game()
 	score = 0
-	hud.global_position = Vector2(viewport_size.x - 180, viewport_size.y - 60)
+	hud.total_fruits_container.global_position = Vector2(viewport_size.x - 180, viewport_size.y - 60)
+	hud.fruit_detail_container.global_position = Vector2(viewport_size.x - 630, viewport_size.y - 110)
 	
 	queue_redraw()
 	preload_all_fruits()
@@ -42,6 +42,8 @@ func _ready() -> void:
 	snake.ate.connect(_on_ate_fruit)
 	snake.killed.connect(_on_snake_killed)
 	snake.recreate_fruit.connect(prepare_fruit)
+	start_game.play(0.5)
+	background_music.play()
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("quit"):
@@ -69,16 +71,19 @@ func preload_all_fruits():
 		var file_name = dir.get_next()
 		
 		while file_name != "":
-			if file_name.ends_with(".png"):  # Adjust for other formats if needed
-				fruits.append(load(dir_path + file_name))
+			if file_name.ends_with('.png.import'):
+				fruits.append(load(dir_path + file_name.replace('.import', '')))
+			#elif file_name.ends_with(".png"):  # Adjust for other formats if needed
+				#fruits.append(ResourceLoader.load(dir_path + file_name, "Texture2D"))
 			file_name = dir.get_next()
+		dir.list_dir_end()
 
-func prepare_fruit(is_only_position: bool = false):
-	if !is_only_position:
-		current_fruits.erase(fruit.get_node("Sprite2D").texture)
-		if current_fruits.size() == 0:
-			current_fruits = fruits.duplicate()
-		fruit.get_node("Sprite2D").texture = current_fruits.pick_random()
+func prepare_fruit(is_only_set_position: bool = false):
+	if !is_only_set_position:
+		#current_fruits.erase(fruit.get_node("Sprite2D").texture)
+		#if current_fruits.size() == 0:
+			#current_fruits = fruits.duplicate()
+		fruit.get_node("Sprite2D").texture = fruits.pick_random()
 	
 	# set fruit position to random cell
 	fruit.global_position = Vector2(randi_range(0, viewport_size.x / CELL_SIZE - 1) * CELL_SIZE, randi_range(0, viewport_size.y / CELL_SIZE - 1) * CELL_SIZE)
@@ -89,8 +94,11 @@ func save_game():
 
 func _on_ate_fruit():
 	score += 1
+	if score > high_score:
+		high_score = score
+	var i = fruits.find(fruit.get_node("Sprite2D").texture)
+	hud.list_score[i].text = str(int(hud.list_score[i].text) + 1)
 	crunch_sound.play()
-	prepare_fruit()
 	
 func _on_snake_killed():
 	gos.set_score(score)

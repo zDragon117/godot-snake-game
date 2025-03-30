@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://eqglgp4kwc4a"]
+[gd_scene load_steps=9 format=3 uid="uid://eqglgp4kwc4a"]
 
 [ext_resource type="Script" uid="uid://d4ch74y58tesv" path="res://scripts/game.gd" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://cpmic6tqotvg" path="res://scenes/fruit.tscn" id="2_yqjtg"]
 [ext_resource type="PackedScene" uid="uid://jg7hklt6mv8q" path="res://scenes/snake.tscn" id="3_lbhrr"]
 [ext_resource type="AudioStream" uid="uid://b3nw5thw76ut7" path="res://assets/audio/crunch.wav" id="4_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://c5f1quxc4h2rm" path="res://scenes/hud.tscn" id="5_p57ef"]
+[ext_resource type="AudioStream" uid="uid://cvjc3th6ltdy7" path="res://assets/audio/indie-game-soundtrack-251864.mp3" id="5_u5sy4"]
+[ext_resource type="AudioStream" uid="uid://rddsqxu4x8lc" path="res://assets/audio/game-start-317318.mp3" id="6_gee14"]
 [ext_resource type="PackedScene" uid="uid://dwmb6u1opdnfn" path="res://scenes/game_over_scene.tscn" id="6_u5sy4"]
 
 [node name="Game" type="Node2D"]
@@ -18,6 +20,15 @@ script = ExtResource("1_uwrxv")
 
 [node name="Crunch" type="AudioStreamPlayer" parent="SFX"]
 stream = ExtResource("4_lbhrr")
+volume_db = -10.0
+
+[node name="BackgroundMusic" type="AudioStreamPlayer" parent="SFX"]
+stream = ExtResource("5_u5sy4")
+volume_db = -20.0
+parameters/looping = true
+
+[node name="StartGame" type="AudioStreamPlayer" parent="SFX"]
+stream = ExtResource("6_gee14")
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 

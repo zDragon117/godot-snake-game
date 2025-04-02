@@ -79,8 +79,8 @@ func update_snake_graphics():
 	update_tail_graphics()
 
 	for i in snake_segments.size():
-		var position = Vector2(int(snake_segments[i]["axis"].x * cell_size), int(snake_segments[i]["axis"].y * cell_size))
-		snake_segments[i]["body"].global_position = position
+		var pos = Vector2(int(snake_segments[i]["axis"].x * cell_size), int(snake_segments[i]["axis"].y * cell_size))
+		snake_segments[i]["body"].global_position = pos
 		
 		if i == 0:
 			snake_segments[i]["body"].get_node("Sprite2D").texture = head_graphic
@@ -94,28 +94,36 @@ func update_snake_graphics():
 			elif previous_block.y == next_block.y:
 				snake_segments[i]["body"].get_node("Sprite2D").texture = BODY_HORIZONTAL
 			else:
-				if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1:
+				if (previous_block.x == -1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == -1):
 					snake_segments[i]["body"].get_node("Sprite2D").texture = BODY_TOPLEFT
-				elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1:
+				elif (previous_block.x == -1 and next_block.y == 1) or (previous_block.y == 1 and next_block.x == -1):
 					snake_segments[i]["body"].get_node("Sprite2D").texture = BODY_BOTTOMLEFT
-				elif previous_block.x == 1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == 1:
+				elif (previous_block.x == 1 and next_block.y == -1) or (previous_block.y == -1 and next_block.x == 1):
 					snake_segments[i]["body"].get_node("Sprite2D").texture = BODY_TOPRIGHT
-				elif previous_block.x == 1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == 1:
+				elif (previous_block.x == 1 and next_block.y == 1) or (previous_block.y == 1 and next_block.x == 1):
 					snake_segments[i]["body"].get_node("Sprite2D").texture = BODY_BOTTOMRIGHT
 
 func update_head_graphics():
-	var head_relation = snake_segments[0]["axis"] - snake_segments[1]["axis"]
-	if head_relation == Vector2.LEFT: head_graphic = HEAD_LEFT
-	elif head_relation == Vector2.RIGHT: head_graphic = HEAD_RIGHT
-	elif head_relation == Vector2.UP: head_graphic = HEAD_UP
-	elif head_relation == Vector2.DOWN: head_graphic = HEAD_DOWN
+	var head_relation: Vector2 = snake_segments[0]["axis"] - snake_segments[1]["axis"]
+	if head_relation == Vector2.LEFT or head_relation.x == number_cells_x - 1:
+		head_graphic = HEAD_LEFT
+	elif head_relation == Vector2.RIGHT or head_relation.x == 1 - number_cells_x:
+		head_graphic = HEAD_RIGHT
+	elif head_relation == Vector2.UP or head_relation.y == number_cells_y - 1:
+		head_graphic = HEAD_UP
+	elif head_relation == Vector2.DOWN or head_relation.y == 1 - number_cells_y:
+		head_graphic = HEAD_DOWN
 
 func update_tail_graphics():
-	var tail_relation = snake_segments[-1]["axis"] - snake_segments[-2]["axis"]
-	if tail_relation == Vector2.LEFT: tail_graphic = TAIL_LEFT
-	elif tail_relation == Vector2.RIGHT: tail_graphic = TAIL_RIGHT
-	elif tail_relation == Vector2.UP: tail_graphic = TAIL_UP
-	elif tail_relation == Vector2.DOWN: tail_graphic = TAIL_DOWN
+	var tail_relation: Vector2 = snake_segments[-1]["axis"] - snake_segments[-2]["axis"]
+	if tail_relation == Vector2.LEFT or tail_relation.x == number_cells_x - 1:
+		tail_graphic = TAIL_LEFT
+	elif tail_relation == Vector2.RIGHT or tail_relation.x == 1 - number_cells_x:
+		tail_graphic = TAIL_RIGHT
+	elif tail_relation == Vector2.UP or tail_relation.y == number_cells_y - 1:
+		tail_graphic = TAIL_UP
+	elif tail_relation == Vector2.DOWN or tail_relation.y == 1 - number_cells_y:
+		tail_graphic = TAIL_DOWN
 
 func move_snake():
 	if direction != Vector2.ZERO:
@@ -133,14 +141,14 @@ func move_snake():
 			snake_segments.insert(0, temp)
 
 func check_wall(snake_axis: Vector2) -> Vector2:
-	if snake_axis.x > viewport_size.x / cell_size - 1:
+	if snake_axis.x > number_cells_x - 1:
 		snake_axis.x = 0
 	elif snake_axis.x < 0:
-		snake_axis.x = viewport_size.x / cell_size - 1
-	if snake_axis.y > viewport_size.y / cell_size - 1:
+		snake_axis.x = number_cells_x - 1
+	if snake_axis.y > number_cells_y - 1:
 		snake_axis.y = 0
 	elif snake_axis.y < 0:
-		snake_axis.y = viewport_size.y / cell_size - 1
+		snake_axis.y = number_cells_y - 1
 	return snake_axis
 
 func check_fruit_collision():
